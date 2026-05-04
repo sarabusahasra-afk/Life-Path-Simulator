@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life Path Simulator – Plan Your Financial Future</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ============================================================
+       CSS VARIABLES & RESET
+    ============================================================ */
+    :root {
+      --bg:        #080e1a;
+      --bg2:       #0d1525;
+      --bg3:       #111d33;
+      --card:      #0f1c30;
+      --card2:     #142340;
+      --border:    rgba(100,140,220,0.18);
+      --gold:      #f0b429;
+      --gold2:     #ffd166;
+      --accent:    #4a9eff;
+      --accent2:   #7bb8ff;
+      --text:      #e8edf8;
+      --text2:     #a8b8d8;
+      --text3:     #6680a8;
+      --green:     #22d3a5;
+      --red:       #ff5e5e;
+      --purple:    #a78bfa;
+      --radius:    14px;
+      --radius-sm: 8px;
+      --shadow:    0 8px 40px rgba(0,0,0,0.5);
+      --shadow-sm: 0 4px 16px rgba(0,0,0,0.3);
+      --transition: 0.25s ease;
+      --font: 'Sora', sans-serif;
+      --mono: 'DM Mono', monospace;
+    }
+    [data-theme="light"] {
+      --bg:        #f0f4ff;
+      --bg2:       #e4eaf8;
+      --bg3:       #d8e2f5;
+      --card:      #ffffff;
+      --card2:     #eef2fc;
+      --border:    rgba(60,100,200,0.15);
+      --text:      #0d1525;
+      --text2:     #3a5080;
+      --text3:     #6680a8;
+      --shadow:    0 8px 40px rgba(0,40,120,0.12);
+      --shadow-sm: 0 4px 16px rgba(0,40,120,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+    ::selection { background: var(--gold); color: #000; }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg2); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    /* ============================================================
+       UTILITIES
+    ============================================================ */
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+    .flex { display: flex; }
+    .grid { display: grid; }
+    .gap-1 { gap: 0.5rem; }
+    .gap-2 { gap: 1rem; }
+    .gap-3 { gap: 1.5rem; }
+    .gap-4 { gap: 2rem; }
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+    .text-gold { color: var(--gold); }
+    .text-green { color: var(--green); }
+    .text-red { color: var(--red); }
+    .text-accent { color: var(--accent); }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.7rem;
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-gold { background: rgba(240,180,41,0.15); color: var(--gold); border: 1px solid rgba(240,180,41,0.3); }
+    .badge-green { background: rgba(34,211,165,0.12); color: var(--green); border: 1px solid rgba(34,211,165,0.3); }
+    .badge-red { background: rgba(255,94,94,0.12); color: var(--red); border: 1px solid rgba(255,94,94,0.3); }
+    .badge-blue { background: rgba(74,158,255,0.12); color: var(--accent); border: 1px solid rgba(74,158,255,0.3); }
+
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(8,14,26,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 0;
+      transition: background var(--transition);
+    }
+    [data-theme="light"] nav { background: rgba(240,244,255,0.88); }
+    nav .container { display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo {
+      font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--gold), var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .nav-links { display: flex; gap: 1.8rem; align-items: center; }
+    .nav-links a {
+      color: var(--text2); text-decoration: none; font-size: 0.88rem;
+      font-weight: 500; transition: color var(--transition);
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .theme-toggle {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 50px; padding: 0.4rem 0.9rem;
+      color: var(--text2); font-size: 0.82rem; cursor: pointer;
+      font-family: var(--font); transition: all var(--transition);
+    }
+    .theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--text2); border-radius: 2px; transition: all var(--transition); }
+
+    /* ============================================================
+       HERO / LANDING
+    ============================================================ */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 80px;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(74,158,255,0.08) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 70%, rgba(240,180,41,0.06) 0%, transparent 60%);
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(74,158,255,0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(74,158,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-content { position: relative; z-index: 1; text-align: center; width: 100%; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(240,180,41,0.1); border: 1px solid rgba(240,180,41,0.25);
+      border-radius: 50px; padding: 0.35rem 1rem;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 1.5rem;
+      animation: fadeInDown 0.7s ease both;
+    }
+    .hero-title {
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800; line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      animation: fadeInUp 0.8s ease 0.1s both;
+    }
+    .hero-title span {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--accent) 60%, var(--gold2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.1rem; color: var(--text2); max-width: 580px;
+      margin: 0 auto 2.5rem; line-height: 1.7;
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; animation: fadeInUp 0.8s ease 0.3s both; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.85rem 2rem; border-radius: 50px;
+      font-family: var(--font); font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      border: 2px solid transparent;
+      transition: all 0.22s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), #e8960a);
+      color: #000;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(240,180,41,0.35); }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-sm { padding: 0.55rem 1.2rem; font-size: 0.85rem; }
+    .btn-outline {
+      background: transparent; color: var(--accent);
+      border-color: var(--accent);
+    }
+    .btn-outline:hover { background: rgba(74,158,255,0.1); }
+    .btn-green { background: var(--green); color: #000; border-color: var(--green); }
+    .btn-green:hover { opacity: 0.88; transform: translateY(-2px); }
+    .btn-danger { background: var(--red); color: #fff; border-color: var(--red); }
+    .btn-danger:hover { opacity: 0.85; }
+
+    .hero-stats {
+      display: flex; justify-content: center; gap: 3rem; margin-top: 3.5rem; flex-wrap: wrap;
+      animation: fadeInUp 0.8s ease 0.4s both;
+    }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
+    .stat-label { font-size: 0.8rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Benefits strip */
+    .benefits-strip {
+      background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 4rem 0;
+    }
+    .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; }
+    .benefit-card {
+      text-align: center; padding: 1.8rem 1.2rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: transform var(--transition), border-color var(--transition);
+    }
+    .benefit-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+    .benefit-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+    .benefit-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .benefit-card p { font-size: 0.85rem; color: var(--text2); }
+
+    /* ============================================================
+       SECTION COMMON
+    ============================================================ */
+    section { padding: 5rem 0; }
+    .section-header { margin-bottom: 2.5rem; }
+    .section-tag {
+      display: inline-block; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 0.6rem;
+    }
+    .section-title { font-size: clamp(1.7rem, 3.5vw, 2.4rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .section-sub { color: var(--text2); font-size: 1rem; max-width: 560px; }
+
+    /* ============================================================
+       CARD
+    ============================================================ */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .card:hover { border-color: rgba(74,158,255,0.3); }
+    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); display: flex; align-items: center; gap: 0.5rem; }
+
+    /* ============================================================
+       FORM STYLES
+    ============================================================ */
+    #simulator { background: var(--bg2); }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label {
+      font-size: 0.82rem; font-weight: 600; color: var(--text2);
+      letter-spacing: 0.03em; text-transform: uppercase;
+    }
+    .form-group label .tip {
+      display: inline-block; width: 15px; height: 15px;
+      background: var(--card2); border-radius: 50%; text-align: center;
+      line-height: 15px; font-size: 0.65rem; cursor: help;
+      color: var(--text3); margin-left: 4px; border: 1px solid var(--border);
+    }
+    .form-control {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 0.7rem 0.9rem;
+      color: var(--text); font-family: var(--font); font-size: 0.92rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      width: 100%;
+    }
+    .form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74,158,255,0.12); }
+    select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a8b8d8' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.9rem center; padding-right: 2.2rem; cursor: pointer; }
+    .range-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .range-header { display: flex; justify-content: space-between; align-items: center; }
+    .range-val { font-size: 0.92rem; font-weight: 700; color: var(--gold); font-family: var(--mono); }
+    input[type="range"] {
+      width: 100%; accent-color: var(--gold); cursor: pointer;
+      height: 6px; border-radius: 3px; background: var(--bg3);
+      outline: none; border: none;
+    }
+    .form-section-title {
+      font-size: 1.15rem; font-weight: 700; color: var(--gold);
+      padding-bottom: 0.7rem; border-bottom: 1px solid var(--border);
+      margin-bottom: 1.2rem; margin-top: 2rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .form-section-title:first-of-type { margin-top: 0; }
+    .error-msg { font-size: 0.75rem; color: var(--red); display: none; }
+    .form-control.invalid { border-color: var(--red); }
+
+    /* ============================================================
+       GOALS
+    ============================================================ */
+    #goals-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+    .goal-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.2rem 1.4rem;
+      display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap: 1rem; align-items: end;
+    }
+    .goal-card .form-group { margin: 0; }
+    .goal-remove { background: rgba(255,94,94,0.12); border: 1px solid rgba(255,94,94,0.3); color: var(--red); border-radius: var(--radius-sm); padding: 0.6rem 1rem; cursor: pointer; font-size: 0.85rem; font-family: var(--font); font-weight: 600; transition: all var(--transition); align-self: end; }
+    .goal-remove:hover { background: rgba(255,94,94,0.25); }
+
+    /* ============================================================
+       RESULTS DASHBOARD
+    ============================================================ */
+    #results { background: var(--bg); }
+    .results-placeholder {
+      text-align: center; padding: 4rem 2rem;
+      background: var(--card); border: 2px dashed var(--border);
+      border-radius: var(--radius);
+    }
+    .results-placeholder .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+    .results-placeholder p { color: var(--text2); }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .metric-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.2rem;
+      text-align: center;
+    }
+    .metric-card .m-label { font-size: 0.72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+    .metric-card .m-val { font-size: 1.5rem; font-weight: 800; font-family: var(--mono); }
+    .metric-card .m-sub { font-size: 0.75rem; color: var(--text3); margin-top: 0.2rem; }
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+    .chart-card h3 { font-size: 0.9rem; font-weight: 600; color: var(--text2); margin-bottom: 1rem; }
+    .chart-card canvas { max-height: 260px; }
+    .goals-results { display: flex; flex-direction: column; gap: 1rem; }
+    .goal-result-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.2rem 1.5rem;
+    }
+    .goal-result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.5rem; }
+    .goal-result-name { font-weight: 700; font-size: 1rem; }
+    .progress-bar-wrap { background: var(--bg3); border-radius: 50px; height: 8px; overflow: hidden; margin-bottom: 0.4rem; }
+    .progress-bar { height: 100%; border-radius: 50px; transition: width 1s ease; }
+    .goal-result-meta { font-size: 0.78rem; color: var(--text3); display: flex; gap: 1.5rem; flex-wrap: wrap; }
+
+    /* Score circle */
+    .score-section { display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin-bottom: 2rem; }
+    .score-circle-wrap { flex-shrink: 0; }
+    .score-circle {
+      width: 130px; height: 130px; border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: conic-gradient(var(--gold) 0%, var(--accent) 0%, var(--bg3) 0%);
+      position: relative;
+    }
+    .score-circle::before {
+      content: ''; position: absolute; inset: 12px;
+      background: var(--card); border-radius: 50%;
+    }
+    .score-num { position: relative; z-index: 1; font-size: 2rem; font-weight: 900; font-family: var(--mono); color: var(--gold); }
+    .score-label { position: relative; z-index: 1; font-size: 0.68rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .score-details h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .score-breakdown { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+    .score-item { background: var(--bg3); border-radius: 8px; padding: 0.5rem 0.8rem; font-size: 0.78rem; }
+    .score-item span { font-weight: 700; color: var(--gold); }
+
+    /* ============================================================
+       WHAT-IF SIMULATOR
+    ============================================================ */
+    #whatif { background: var(--bg2); }
+    .whatif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .whatif-live {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+    .live-metric { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
+    .live-metric:last-child { border-bottom: none; }
+    .live-metric .lm-label { font-size: 0.85rem; color: var(--text2); }
+    .live-metric .lm-val { font-size: 1rem; font-weight: 700; font-family: var(--mono); color: var(--gold); }
+    .stability-bar-wrap { margin-top: 1.2rem; }
+    .stability-bar { height: 12px; background: var(--bg3); border-radius: 50px; overflow: hidden; }
+    .stability-fill { height: 100%; border-radius: 50px; background: linear-gradient(90deg, var(--red), var(--gold), var(--green)); transition: width 0.5s ease; }
+
+    /* ============================================================
+       ADVICE ENGINE
+    ============================================================ */
+    #advice { background: var(--bg); }
+    .advice-cards { display: flex; flex-direction: column; gap: 1rem; }
+    .advice-item {
+      display: flex; gap: 1rem; align-items: flex-start;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.2rem 1.4rem;
+      transition: border-color var(--transition);
+    }
+    .advice-item.warn { border-left: 3px solid var(--gold); }
+    .advice-item.danger { border-left: 3px solid var(--red); }
+    .advice-item.good { border-left: 3px solid var(--green); }
+    .advice-item.info { border-left: 3px solid var(--accent); }
+    .advice-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .advice-text strong { display: block; font-size: 0.92rem; margin-bottom: 0.2rem; }
+    .advice-text p { font-size: 0.85rem; color: var(--text2); }
+    .disclaimer {
+      background: rgba(74,158,255,0.06); border: 1px solid rgba(74,158,255,0.2);
+      border-radius: var(--radius); padding: 1rem 1.3rem;
+      font-size: 0.82rem; color: var(--text2); margin-top: 1.5rem;
+    }
+
+    /* ============================================================
+       INVESTMENT TIPS / LESSONS ACCORDION CARDS
+    ============================================================ */
+    #invest-tips { background: var(--bg2); }
+    #lessons { background: var(--bg); }
+    .accordion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1rem; }
+    .accordion-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; cursor: pointer; transition: border-color var(--transition);
+    }
+    .accordion-card:hover { border-color: var(--accent); }
+    .accordion-header {
+      padding: 1.1rem 1.3rem; display: flex; justify-content: space-between; align-items: center;
+    }
+    .accordion-title { font-size: 0.92rem; font-weight: 600; display: flex; align-items: center; gap: 0.6rem; }
+    .accordion-arrow { color: var(--text3); transition: transform 0.25s ease; font-size: 0.8rem; }
+    .accordion-card.open .accordion-arrow { transform: rotate(180deg); }
+    .accordion-body {
+      max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+    }
+    .accordion-card.open .accordion-body { max-height: 300px; }
+    .accordion-body-inner { padding: 0 1.3rem 1.2rem; font-size: 0.85rem; color: var(--text2); line-height: 1.7; border-top: 1px solid var(--border); padding-top: 0.9rem; }
+
+    /* ============================================================
+       REPORT
+    ============================================================ */
+    #report { background: var(--bg2); }
+    #report-output {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 2.5rem; line-height: 1.8;
+    }
+    .report-header { border-bottom: 2px solid var(--gold); padding-bottom: 1.2rem; margin-bottom: 2rem; }
+    .report-logo { font-size: 1.5rem; font-weight: 900; background: linear-gradient(135deg, var(--gold), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .report-section { margin-bottom: 2rem; }
+    .report-section h3 { font-size: 1rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    .report-row { display: flex; justify-content: space-between; padding: 0.35rem 0; font-size: 0.9rem; }
+    .report-row span:last-child { font-weight: 700; color: var(--accent); font-family: var(--mono); }
+    .report-advice-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .report-advice-list li { padding: 0.6rem 0.9rem; background: var(--bg3); border-radius: 8px; font-size: 0.88rem; display: flex; gap: 0.6rem; }
+    .report-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    @media print {
+      nav, .btn, #hero, #simulator, #goals, #whatif, #advice, #invest-tips, #lessons, .results-placeholder, .no-print { display: none !important; }
+      body { background: #fff; color: #000; }
+      #report-output { border: none; padding: 0; }
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      background: var(--bg2); border-top: 1px solid var(--border);
+      text-align: center; padding: 2rem;
+      font-size: 0.82rem; color: var(--text3);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* ============================================================
+       ANIMATIONS
+    ============================================================ */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 900px) {
+      .charts-grid { grid-template-columns: 1fr; }
+      .whatif-grid { grid-template-columns: 1fr; }
+      .goal-card { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      nav.menu-open .nav-links {
+        display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0;
+        background: var(--bg2); padding: 1.5rem; border-bottom: 1px solid var(--border);
+        gap: 1.2rem;
+      }
+      .goal-card { grid-template-columns: 1fr; }
+      .score-section { flex-direction: column; }
+      .hero-stats { gap: 1.5rem; }
+    }
+
+    /* simulate button area */
+    .simulate-bar {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap; margin-top: 2rem;
+    }
+    .simulate-bar p { font-size: 0.85rem; color: var(--text2); }
+    .loading-spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.3); border-top-color: #000;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- ===================== NAVBAR ===================== -->
+<nav id="navbar">
+  <div class="container">
+    <div class="nav-logo">⬡ Life Path</div>
+    <div class="nav-links">
+      <a href="#hero">Home</a>
+      <a href="#simulator">Simulator</a>
+      <a href="#results">Results</a>
+      <a href="#whatif">What-If</a>
+      <a href="#advice">Advice</a>
+      <a href="#report">Report</a>
+    </div>
+    <div style="display:flex;gap:0.7rem;align-items:center">
+      <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+      <button class="btn btn-secondary btn-sm" onclick="resetAll()">↺ Reset</button>
+      <div class="hamburger" onclick="toggleMenu()" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-eyebrow">✦ Financial Life Planning Tool</div>
+      <h1 class="hero-title">
+        Simulate Your<br><span>Financial Future</span>
+      </h1>
+      <p class="hero-sub">
+        Build a personalized roadmap for your money, goals, and life. Understand exactly where you're headed — and how to get there faster.
+      </p>
+      <div class="hero-cta">
+        <a href="#simulator" class="btn btn-primary">🚀 Start Simulating</a>
+        <a href="#invest-tips" class="btn btn-secondary">📚 Learn First</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item"><div class="stat-num">12+</div><div class="stat-label">Inputs</div></div>
+        <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">Charts</div></div>
+        <div class="stat-item"><div class="stat-num">∞</div><div class="stat-label">Goals</div></div>
+        <div class="stat-item"><div class="stat-num">AI</div><div class="stat-label">Advice</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BENEFITS ===================== -->
+<div class="benefits-strip">
+  <div class="container">
+    <div class="benefits-grid">
+      <div class="benefit-card"><div class="benefit-icon">🎯</div><h3>Plan Real Goals</h3><p>Set targets for a home, car, college, travel & more with real timelines.</p></div>
+      <div class="benefit-card"><div class="benefit-icon">💡</div><h3>Smart Advice</h3><p>Get personalized tips based on your actual income and spending data.</p></div>
+      <div class="benefit-card"><div class="benefit-icon">📊</div><h3>See the Big Picture</h3><p>Visualize your net worth growth, expense breakdown, and savings track.</p></div>
+      <div class="benefit-card"><div class="benefit-icon">🔄</div><h3>What-If Scenarios</h3><p>Adjust salary, rent, or savings rate and watch your future change live.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SIMULATOR FORM ===================== -->
+<section id="simulator">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Step 1</div>
+      <h2 class="section-title">Tell Us About Your Life</h2>
+      <p class="section-sub">Fill in the details below. The more accurate you are, the better your results.</p>
+    </div>
+
+    <!-- Personal Info -->
+    <div class="form-section-title">👤 Personal Info</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Your Name</label>
+        <input class="form-control" id="f-name" type="text" placeholder="e.g. Alex Johnson" />
+      </div>
+      <div class="form-group">
+        <label>Current Age</label>
+        <input class="form-control" id="f-age" type="number" min="14" max="70" value="22" />
+      </div>
+      <div class="form-group">
+        <label>Current Savings ($)</label>
+        <input class="form-control" id="f-savings" type="number" min="0" value="2000" />
+      </div>
+      <div class="form-group">
+        <label>Lifestyle Type</label>
+        <select class="form-control" id="f-lifestyle">
+          <option value="frugal">🥦 Frugal – spend as little as possible</option>
+          <option value="balanced" selected>⚖️ Balanced – reasonable spending</option>
+          <option value="comfortable">🛋️ Comfortable – a few luxuries</option>
+          <option value="luxury">💎 Luxury – premium everything</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Career & Income -->
+    <div class="form-section-title">💼 Career & Income</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Career / Field</label>
+        <select class="form-control" id="f-career">
+          <option value="tech">💻 Technology / Software</option>
+          <option value="health">🏥 Healthcare / Medicine</option>
+          <option value="finance">💰 Finance / Banking</option>
+          <option value="education">📚 Education / Teaching</option>
+          <option value="arts">🎨 Arts / Creative</option>
+          <option value="trade">🔧 Skilled Trade</option>
+          <option value="business">🏢 Business / Management</option>
+          <option value="other">🌐 Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Yearly Salary ($)</label>
+        <input class="form-control" id="f-salary" type="number" min="0" value="52000" />
+      </div>
+      <div class="form-group">
+        <label>Side Income (monthly $)</label>
+        <input class="form-control" id="f-side" type="number" min="0" value="0" />
+      </div>
+      <div class="form-group range-group">
+        <div class="range-header"><label>Salary Growth / Year</label><span class="range-val" id="rv-salgrowth">3%</span></div>
+        <input type="range" id="f-salgrowth" min="0" max="15" value="3" step="0.5" oninput="updateRange(this,'rv-salgrowth','%')" />
+      </div>
+    </div>
+
+    <!-- City & Housing -->
+    <div class="form-section-title">🏙️ City & Housing</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>City Size</label>
+        <select class="form-control" id="f-city">
+          <option value="small">🏘️ Small Town / Rural</option>
+          <option value="mid">🏙️ Mid-Size City</option>
+          <option value="large" selected>🌆 Large City</option>
+          <option value="major">🗽 Major Metro (NYC, SF, etc.)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Monthly Rent ($)</label>
+        <input class="form-control" id="f-rent" type="number" min="0" value="1200" />
+      </div>
+    </div>
+
+    <!-- Monthly Expenses -->
+    <div class="form-section-title">💸 Monthly Expenses</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Food / Groceries ($)</label>
+        <input class="form-control" id="f-food" type="number" min="0" value="400" />
+      </div>
+      <div class="form-group">
+        <label>Transportation ($)</label>
+        <input class="form-control" id="f-transport" type="number" min="0" value="200" />
+      </div>
+      <div class="form-group">
+        <label>Subscriptions ($)</label>
+        <input class="form-control" id="f-subs" type="number" min="0" value="50" />
+      </div>
+      <div class="form-group">
+        <label>Entertainment ($)</label>
+        <input class="form-control" id="f-entertain" type="number" min="0" value="150" />
+      </div>
+      <div class="form-group">
+        <label>Other Expenses ($)</label>
+        <input class="form-control" id="f-other" type="number" min="0" value="100" />
+      </div>
+    </div>
+
+    <!-- Debt & Loans -->
+    <div class="form-section-title">🎓 Debt & Loans</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Student Loan Balance ($)</label>
+        <input class="form-control" id="f-loan" type="number" min="0" value="0" />
+      </div>
+      <div class="form-group range-group">
+        <div class="range-header"><label>Student Loan Interest Rate</label><span class="range-val" id="rv-loanrate">5%</span></div>
+        <input type="range" id="f-loanrate" min="0" max="15" value="5" step="0.25" oninput="updateRange(this,'rv-loanrate','%')" />
+      </div>
+    </div>
+
+    <!-- Strategy -->
+    <div class="form-section-title">📈 Financial Strategy</div>
+    <div class="form-grid">
+      <div class="form-group range-group">
+        <div class="range-header"><label>Savings Rate (% of take-home)</label><span class="range-val" id="rv-savrate">20%</span></div>
+        <input type="range" id="f-savrate" min="0" max="80" value="20" oninput="updateRange(this,'rv-savrate','%')" />
+      </div>
+      <div class="form-group range-group">
+        <div class="range-header"><label>Inflation Rate Assumption</label><span class="range-val" id="rv-inflation">3%</span></div>
+        <input type="range" id="f-inflation" min="1" max="10" value="3" step="0.5" oninput="updateRange(this,'rv-inflation','%')" />
+      </div>
+      <div class="form-group">
+        <label>Risk Tolerance</label>
+        <select class="form-control" id="f-risk">
+          <option value="low">🛡️ Low – preserve capital, slow growth</option>
+          <option value="medium" selected>⚖️ Medium – balanced growth</option>
+          <option value="high">🚀 High – aggressive growth</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Goals Section embedded -->
+    <div class="form-section-title">🎯 Your Financial Goals</div>
+    <p style="font-size:0.85rem;color:var(--text2);margin-bottom:1.2rem;">Add goals you want to achieve. The simulator will show timelines and feasibility.</p>
+    <div id="goals-list"></div>
+    <button class="btn btn-outline btn-sm" onclick="addGoal()">+ Add Goal</button>
+
+    <!-- Simulate Button -->
+    <div class="simulate-bar">
+      <div>
+        <p><strong>Ready to see your future?</strong></p>
+        <p>Click Simulate to generate your full dashboard, charts, and report.</p>
+      </div>
+      <div style="display:flex;gap:0.8rem;flex-wrap:wrap">
+        <button class="btn btn-primary" id="sim-btn" onclick="runSimulation()">
+          ⚡ Simulate My Life
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="saveToStorage()">💾 Save</button>
+        <button class="btn btn-secondary btn-sm" onclick="loadFromStorage()">📂 Load</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RESULTS ===================== -->
+<section id="results">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Step 2</div>
+      <h2 class="section-title">Your Results Dashboard</h2>
+      <p class="section-sub">A full breakdown of your financial picture.</p>
+    </div>
+    <div id="results-content">
+      <div class="results-placeholder">
+        <div class="icon">📊</div>
+        <p>Run the simulator above to see your personalized dashboard here.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WHAT-IF ===================== -->
+<section id="whatif">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Step 3</div>
+      <h2 class="section-title">What-If Simulator</h2>
+      <p class="section-sub">Adjust any variable and instantly see how it changes your future.</p>
+    </div>
+    <div class="whatif-grid">
+      <div class="card">
+        <div class="card-title">🎛️ Adjust Variables</div>
+        <div style="display:flex;flex-direction:column;gap:1.2rem">
+          <div class="range-group">
+            <div class="range-header"><label style="font-size:0.82rem;font-weight:600;color:var(--text2)">Salary ($)</label><span class="range-val" id="wi-salary-val">$52,000</span></div>
+            <input type="range" id="wi-salary" min="20000" max="300000" step="1000" value="52000" oninput="updateWhatIf()" />
+          </div>
+          <div class="range-group">
+            <div class="range-header"><label style="font-size:0.82rem;font-weight:600;color:var(--text2)">Rent ($/mo)</label><span class="range-val" id="wi-rent-val">$1,200</span></div>
+            <input type="range" id="wi-rent" min="300" max="8000" step="50" value="1200" oninput="updateWhatIf()" />
+          </div>
+          <div class="range-group">
+            <div class="range-header"><label style="font-size:0.82rem;font-weight:600;color:var(--text2)">Food ($/mo)</label><span class="range-val" id="wi-food-val">$400</span></div>
+            <input type="range" id="wi-food" min="100" max="2000" step="25" value="400" oninput="updateWhatIf()" />
+          </div>
+          <div class="range-group">
+            <div class="range-header"><label style="font-size:0.82rem;font-weight:600;color:var(--text2)">Side Income ($/mo)</label><span class="range-val" id="wi-side-val">$0</span></div>
+            <input type="range" id="wi-side" min="0" max="5000" step="50" value="0" oninput="updateWhatIf()" />
+          </div>
+          <div class="range-group">
+            <div class="range-header"><label style="font-size:0.82rem;font-weight:600;color:var(--text2)">Savings Rate</label><span class="range-val" id="wi-sav-val">20%</span></div>
+            <input type="range" id="wi-sav" min="0" max="80" value="20" oninput="updateWhatIf()" />
+          </div>
+          <div class="range-group">
+            <div class="range-header"><label style="font-size:0.82rem;font-weight:600;color:var(--text2)">Investment Return</label><span class="range-val" id="wi-inv-val">6%</span></div>
+            <input type="range" id="wi-inv" min="1" max="15" value="6" step="0.5" oninput="updateWhatIf()" />
+          </div>
+        </div>
+      </div>
+      <div class="whatif-live">
+        <div class="card-title">📈 Live Impact</div>
+        <div id="wi-metrics"></div>
+        <div class="stability-bar-wrap">
+          <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text3);margin-bottom:0.4rem">
+            <span>Financial Stability</span><span id="wi-stab-pct">—</span>
+          </div>
+          <div class="stability-bar"><div class="stability-fill" id="wi-stab-fill" style="width:0%"></div></div>
+        </div>
+        <div id="wi-chart-wrap" style="margin-top:1.5rem">
+          <canvas id="wi-chart" style="max-height:200px"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ADVICE ===================== -->
+<section id="advice">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Smart Insights</div>
+      <h2 class="section-title">Personalized Advice</h2>
+      <p class="section-sub">Based on your numbers, here's what you should know.</p>
+    </div>
+    <div id="advice-cards" class="advice-cards">
+      <div class="results-placeholder"><div class="icon">💬</div><p>Run the simulator to get personalized advice here.</p></div>
+    </div>
+    <div class="disclaimer">
+      ⚠️ <strong>Disclaimer:</strong> Life Path Simulator is an educational tool only. It does not constitute professional financial, tax, or investment advice. Always consult a licensed financial advisor before making major financial decisions.
+    </div>
+  </div>
+</section>
+
+<!-- ===================== INVESTMENT TIPS ===================== -->
+<section id="invest-tips">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Learn</div>
+      <h2 class="section-title">Investment Tips</h2>
+      <p class="section-sub">Click any card to expand and learn the concept.</p>
+    </div>
+    <div class="accordion-grid" id="invest-accordion"></div>
+  </div>
+</section>
+
+<!-- ===================== LIFE LESSONS ===================== -->
+<section id="lessons">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Wisdom</div>
+      <h2 class="section-title">Life Lessons</h2>
+      <p class="section-sub">Timeless principles for building wealth and happiness.</p>
+    </div>
+    <div class="accordion-grid" id="lessons-accordion"></div>
+  </div>
+</section>
+
+<!-- ===================== REPORT ===================== -->
+<section id="report">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Final Step</div>
+      <h2 class="section-title">Your Life Report</h2>
+      <p class="section-sub">A complete, printable summary of your financial plan.</p>
+    </div>
+    <div style="margin-bottom:1.5rem;display:flex;gap:1rem;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="generateReport()">📋 Generate My Life Report</button>
+      <button class="btn btn-secondary" onclick="window.print()">🖨️ Print / Save PDF</button>
+      <button class="btn btn-outline btn-sm" onclick="shareReport()">🔗 Copy Shareable Summary</button>
+    </div>
+    <div id="report-output">
+      <div class="results-placeholder"><div class="icon">📄</div><p>Click "Generate My Life Report" to create your personalized report.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <p>⬡ <strong>Life Path Simulator</strong> — Educational Financial Planning Tool</p>
+  <p style="margin-top:0.4rem">Built with ❤️ for students and young adults. <span style="color:var(--text3)">Not financial advice.</span></p>
+</footer>
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+/* ============================================================
+   THEME TOGGLE
+============================================================ */
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn = document.querySelector('.theme-toggle');
+  if (html.getAttribute('data-theme') === 'dark') {
+    html.setAttribute('data-theme', 'light');
+    btn.textContent = '🌑 Light';
+  } else {
+    html.setAttribute('data-theme', 'dark');
+    btn.textContent = '🌙 Dark';
+  }
+}
+
+function toggleMenu() {
+  document.getElementById('navbar').classList.toggle('menu-open');
+}
+
+/* ============================================================
+   RANGE UPDATER
+============================================================ */
+function updateRange(el, valId, suffix) {
+  document.getElementById(valId).textContent = el.value + suffix;
+}
+
+/* ============================================================
+   FORMAT HELPERS
+============================================================ */
+const fmt = (n) => '$' + Math.round(n).toLocaleString();
+const fmtK = (n) => {
+  if (Math.abs(n) >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return '$' + (n/1e3).toFixed(1) + 'K';
+  return '$' + Math.round(n).toLocaleString();
+};
+
+/* ============================================================
+   GOALS MANAGER
+============================================================ */
+let goalCount = 0;
+const goalDefaults = [
+  { name:'Emergency Fund', target:10000, saved:0, years:2, priority:'high' },
+  { name:'Buy a Car', target:20000, saved:500, years:3, priority:'medium' },
+];
+
+function addGoal(g) {
+  goalCount++;
+  const id = 'goal-' + goalCount;
+  const d = g || {};
+  const row = document.createElement('div');
+  row.className = 'goal-card';
+  row.id = id;
+  row.innerHTML = `
+    <div class="form-group">
+      <label>Goal Name</label>
+      <input class="form-control" type="text" placeholder="e.g. Buy a House" value="${d.name||''}" />
+    </div>
+    <div class="form-group">
+      <label>Target ($)</label>
+      <input class="form-control" type="number" min="0" placeholder="50000" value="${d.target||''}" />
+    </div>
+    <div class="form-group">
+      <label>Saved So Far ($)</label>
+      <input class="form-control" type="number" min="0" placeholder="0" value="${d.saved||0}" />
+    </div>
+    <div class="form-group">
+      <label>Deadline (years)</label>
+      <input class="form-control" type="number" min="1" max="40" placeholder="5" value="${d.years||''}" />
+    </div>
+    <div class="form-group">
+      <label>Priority</label>
+      <select class="form-control">
+        <option value="low" ${d.priority==='low'?'selected':''}>🟡 Low</option>
+        <option value="medium" ${(!d.priority||d.priority==='medium')?'selected':''}>🟠 Medium</option>
+        <option value="high" ${d.priority==='high'?'selected':''}>🔴 High</option>
+      </select>
+    </div>
+    <button class="goal-remove" onclick="removeGoal('${id}')">✕ Remove</button>
+  `;
+  document.getElementById('goals-list').appendChild(row);
+}
+
+function removeGoal(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function getGoals() {
+  const goals = [];
+  document.querySelectorAll('.goal-card').forEach(card => {
+    const inputs = card.querySelectorAll('input');
+    const sel = card.querySelector('select');
+    if (inputs[0].value) {
+      goals.push({
+        name: inputs[0].value,
+        target: parseFloat(inputs[1].value) || 0,
+        saved: parseFloat(inputs[2].value) || 0,
+        years: parseFloat(inputs[3].value) || 5,
+        priority: sel.value
+      });
+    }
+  });
+  return goals;
+}
+
+// Add default goals on load
+goalDefaults.forEach(g => addGoal(g));
+
+/* ============================================================
+   CORE SIMULATION LOGIC
+============================================================ */
+let simData = null;
+let chartPie = null, chartLine = null, chartBar = null, chartWI = null;
+
+function getInputs() {
+  return {
+    name:       document.getElementById('f-name').value || 'You',
+    age:        parseFloat(document.getElementById('f-age').value) || 22,
+    savings:    parseFloat(document.getElementById('f-savings').value) || 0,
+    lifestyle:  document.getElementById('f-lifestyle').value,
+    career:     document.getElementById('f-career').value,
+    salary:     parseFloat(document.getElementById('f-salary').value) || 0,
+    side:       parseFloat(document.getElementById('f-side').value) || 0,
+    salgrowth:  parseFloat(document.getElementById('f-salgrowth').value) / 100,
+    city:       document.getElementById('f-city').value,
+    rent:       parseFloat(document.getElementById('f-rent').value) || 0,
+    food:       parseFloat(document.getElementById('f-food').value) || 0,
+    transport:  parseFloat(document.getElementById('f-transport').value) || 0,
+    subs:       parseFloat(document.getElementById('f-subs').value) || 0,
+    entertain:  parseFloat(document.getElementById('f-entertain').value) || 0,
+    other:      parseFloat(document.getElementById('f-other').value) || 0,
+    loan:       parseFloat(document.getElementById('f-loan').value) || 0,
+    loanrate:   parseFloat(document.getElementById('f-loanrate').value) / 100,
+    savrate:    parseFloat(document.getElementById('f-savrate').value) / 100,
+    inflation:  parseFloat(document.getElementById('f-inflation').value) / 100,
+    risk:       document.getElementById('f-risk').value,
+    goals:      getGoals()
+  };
+}
+
+function simulate(inp) {
+  const TAX_RATE = 0.20;
+  const invReturn = inp.risk === 'low' ? 0.03 : inp.risk === 'medium' ? 0.06 : 0.09;
+
+  // Monthly income
+  const grossMonthly = inp.salary / 12;
+  const netMonthly   = grossMonthly * (1 - TAX_RATE) + inp.side;
+
+  // Monthly expenses
+  const totalExpenses = inp.rent + inp.food + inp.transport + inp.subs + inp.entertain + inp.other;
+
+  // Loan monthly payment estimate (simplified)
+  const loanMonthly = inp.loan > 0
+    ? (inp.loan * (inp.loanrate / 12)) / (1 - Math.pow(1 + inp.loanrate / 12, -120))
+    : 0;
+
+  const totalMonthlyOut = totalExpenses + loanMonthly;
+
+  // Savings
+  const monthlySavings = netMonthly * inp.savrate;
+  const monthlyInvested = monthlySavings * 0.7; // 70% of savings goes to investments
+  const yearlySavings   = monthlySavings * 12;
+
+  // Emergency fund target: 6 months of expenses
+  const emergencyTarget = totalExpenses * 6;
+  const emergencyMet    = inp.savings >= emergencyTarget;
+
+  // Rent % of take-home
+  const rentPct = (inp.rent / netMonthly) * 100;
+  // Expense ratio
+  const expenseRatio = totalMonthlyOut / netMonthly;
+
+  // Net worth projection over 30 years
+  const projection = [];
+  let netWorth = inp.savings;
+  let loan = inp.loan;
+  let yearlySal = inp.salary;
+
+  for (let y = 0; y <= 30; y++) {
+    projection.push({
+      year: inp.age + y,
+      netWorth: Math.round(netWorth),
+      label: (inp.age + y).toString()
+    });
+    // Grow
+    yearlySal *= (1 + inp.salgrowth);
+    const nm = yearlySal / 12 * (1 - TAX_RATE) + inp.side;
+    const savings = nm * inp.savrate * 12;
+    netWorth += savings;
+    netWorth *= (1 + invReturn);
+    // Loan paydown
+    loan = Math.max(0, loan - loanMonthly * 12);
+    netWorth -= loan * 0.02; // rough interest drag
+  }
+
+  // Goals analysis
+  const goalAnalysis = inp.goals.map(g => {
+    const needed = g.target - g.saved;
+    const availPerYear = yearlySavings;
+    const yearsNeeded = needed <= 0 ? 0 : needed / (availPerYear / inp.goals.length);
+    const pct = Math.min(100, (g.saved / g.target) * 100);
+    const realistic = yearsNeeded <= g.years * 1.3;
+    return { ...g, needed, yearsNeeded, pct, realistic };
+  });
+
+  // Score
+  const savScore   = Math.min(25, inp.savrate * 250);    // max 25
+  const debtScore  = inp.loan === 0 ? 20 : Math.max(0, 20 - (inp.loan / inp.salary) * 20);
+  const emgScore   = emergencyMet ? 20 : (inp.savings / emergencyTarget) * 20;
+  const expScore   = Math.max(0, 20 - Math.max(0, expenseRatio - 0.6) * 60);
+  const goalScore  = goalAnalysis.length === 0 ? 10 : (goalAnalysis.filter(g => g.realistic).length / goalAnalysis.length) * 15;
+  const score      = Math.round(Math.min(100, savScore + debtScore + emgScore + expScore + goalScore));
+
+  return {
+    inp, netMonthly, grossMonthly, totalExpenses, loanMonthly,
+    totalMonthlyOut, monthlySavings, yearlySavings, emergencyTarget,
+    emergencyMet, rentPct, expenseRatio, projection, goalAnalysis,
+    score, invReturn, TAX_RATE,
+    scoreBreakdown: { savScore, debtScore, emgScore, expScore, goalScore }
+  };
+}
+
+/* ============================================================
+   RUN SIMULATION
+============================================================ */
+function runSimulation() {
+  const btn = document.getElementById('sim-btn');
+  btn.innerHTML = '<span class="loading-spinner"></span> Simulating...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    const inp = getInputs();
+    simData = simulate(inp);
+
+    renderResults(simData);
+    renderAdvice(simData);
+    syncWhatIfSliders(inp);
+    updateWhatIf();
+
+    btn.innerHTML = '⚡ Simulate My Life';
+    btn.disabled = false;
+
+    // Smooth scroll to results
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 600);
+}
+
+/* ============================================================
+   RENDER RESULTS
+============================================================ */
+function renderResults(d) {
+  const el = document.getElementById('results-content');
+
+  // Score color
+  const scoreColor = d.score >= 70 ? 'var(--green)' : d.score >= 40 ? 'var(--gold)' : 'var(--red)';
+  const scoreGrade = d.score >= 80 ? 'Excellent 🌟' : d.score >= 60 ? 'Good 👍' : d.score >= 40 ? 'Needs Work 📈' : 'Critical ⚠️';
+  const scorePct = d.score;
+  const conicDeg = (scorePct / 100) * 360;
+
+  el.innerHTML = `
+    <!-- Score -->
+    <div class="score-section">
+      <div class="score-circle-wrap">
+        <div class="score-circle" style="background: conic-gradient(${scoreColor} ${conicDeg}deg, var(--bg3) ${conicDeg}deg)">
+          <div class="score-num" style="color:${scoreColor}">${d.score}</div>
+          <div class="score-label">/ 100</div>
+        </div>
+      </div>
+      <div class="score-details">
+        <h3>Life Readiness Score: <span style="color:${scoreColor}">${scoreGrade}</span></h3>
+        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem">${getScoreExplanation(d.score)}</p>
+        <div class="score-breakdown">
+          <div class="score-item">Savings <span>${Math.round(d.scoreBreakdown.savScore)}/25</span></div>
+          <div class="score-item">Debt <span>${Math.round(d.scoreBreakdown.debtScore)}/20</span></div>
+          <div class="score-item">Emergency <span>${Math.round(d.scoreBreakdown.emgScore)}/20</span></div>
+          <div class="score-item">Expenses <span>${Math.round(d.scoreBreakdown.expScore)}/20</span></div>
+          <div class="score-item">Goals <span>${Math.round(d.scoreBreakdown.goalScore)}/15</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="m-label">Monthly Take-Home</div><div class="m-val text-green">${fmt(d.netMonthly)}</div><div class="m-sub">after ~20% tax</div></div>
+      <div class="metric-card"><div class="m-label">Monthly Expenses</div><div class="m-val text-red">${fmt(d.totalMonthlyOut)}</div><div class="m-sub">all bills included</div></div>
+      <div class="metric-card"><div class="m-label">Monthly Savings</div><div class="m-val text-gold">${fmt(d.monthlySavings)}</div><div class="m-sub">${Math.round(d.inp.savrate*100)}% of take-home</div></div>
+      <div class="metric-card"><div class="m-label">Yearly Savings</div><div class="m-val text-accent">${fmt(d.yearlySavings)}</div><div class="m-sub">at current rate</div></div>
+      <div class="metric-card"><div class="m-label">Loan Payment</div><div class="m-val ${d.loanMonthly>0?'text-red':'text-green'}">${fmt(d.loanMonthly)}</div><div class="m-sub">est. monthly</div></div>
+      <div class="metric-card"><div class="m-label">Emergency Fund</div><div class="m-val ${d.emergencyMet?'text-green':'text-red'}">${d.emergencyMet?'✓ Met':'✗ Needed'}</div><div class="m-sub">target: ${fmtK(d.emergencyTarget)}</div></div>
+      <div class="metric-card"><div class="m-label">Rent Ratio</div><div class="m-val ${d.rentPct>30?'text-red':'text-green'}">${Math.round(d.rentPct)}%</div><div class="m-sub">${d.rentPct>30?'above 30% rule':'within 30% rule'}</div></div>
+      <div class="metric-card"><div class="m-label">30-Year Net Worth</div><div class="m-val text-gold">${fmtK(d.projection[30].netWorth)}</div><div class="m-sub">projected</div></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-card"><h3>💸 Monthly Expense Breakdown</h3><canvas id="chart-pie"></canvas></div>
+      <div class="chart-card"><h3>📈 Net Worth Projection (30 years)</h3><canvas id="chart-line"></canvas></div>
+    </div>
+    <div class="chart-card" style="margin-bottom:1.5rem"><h3>🎯 Goal Progress</h3><canvas id="chart-bar" style="max-height:220px"></canvas></div>
+
+    <!-- Goal Details -->
+    <div class="section-header" style="margin-top:2rem">
+      <div class="section-tag">Goals</div>
+      <h3 class="section-title" style="font-size:1.4rem">Goal Analysis</h3>
+    </div>
+    <div class="goals-results" id="goals-results-list"></div>
+  `;
+
+  // Render goal cards
+  renderGoalResults(d.goalAnalysis);
+
+  // Charts (defer to next tick so canvas is in DOM)
+  setTimeout(() => {
+    renderCharts(d);
+  }, 50);
+}
+
+function getScoreExplanation(score) {
+  if (score >= 80) return "Outstanding financial health! You're on track for a secure and prosperous future.";
+  if (score >= 60) return "Solid foundation with room to optimize savings, debt management, or goal planning.";
+  if (score >= 40) return "You have a starting point, but several areas need attention to reach your goals.";
+  return "Immediate action recommended. Focus on reducing expenses and building an emergency fund first.";
+}
+
+function renderGoalResults(goals) {
+  const el = document.getElementById('goals-results-list');
+  if (!el) return;
+  if (goals.length === 0) {
+    el.innerHTML = '<div class="results-placeholder"><div class="icon">🎯</div><p>No goals added yet. Add goals in the form above.</p></div>';
+    return;
+  }
+  el.innerHTML = goals.map(g => `
+    <div class="goal-result-card">
+      <div class="goal-result-header">
+        <div class="goal-result-name">${g.name}</div>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <span class="badge ${g.priority==='high'?'badge-red':g.priority==='medium'?'badge-gold':'badge-blue'}">${g.priority}</span>
+          <span class="badge ${g.realistic?'badge-green':'badge-red'}">${g.realistic?'✓ Realistic':'⚠ Adjust Plan'}</span>
+        </div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" style="width:${g.pct}%;background:${g.realistic?'var(--green)':'var(--gold)'}"></div>
+      </div>
+      <div class="goal-result-meta">
+        <span>Progress: <strong>${Math.round(g.pct)}%</strong></span>
+        <span>Saved: <strong>${fmt(g.saved)}</strong> of ${fmt(g.target)}</span>
+        <span>Est. completion: <strong>${g.needed<=0?'Already met!':Math.round(g.yearsNeeded)+' yrs'}</strong></span>
+        <span>Deadline: <strong>${g.years} yrs</strong></span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   CHARTS
+============================================================ */
+function destroyChart(c) { if (c) { c.destroy(); } return null; }
+
+function renderCharts(d) {
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
+  const textColor = isDark ? '#a8b8d8' : '#3a5080';
+
+  Chart.defaults.color = textColor;
+  Chart.defaults.borderColor = gridColor;
+
+  // Pie chart
+  const pieCtx = document.getElementById('chart-pie');
+  if (!pieCtx) return;
+  chartPie = destroyChart(chartPie);
+  chartPie = new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Rent', 'Food', 'Transport', 'Subscriptions', 'Entertainment', 'Other', 'Loan'],
+      datasets: [{
+        data: [d.inp.rent, d.inp.food, d.inp.transport, d.inp.subs, d.inp.entertain, d.inp.other, Math.round(d.loanMonthly)],
+        backgroundColor: ['#4a9eff','#f0b429','#22d3a5','#a78bfa','#ff5e5e','#6680a8','#ffd166'],
+        borderWidth: 2,
+        borderColor: isDark ? '#0f1c30' : '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } } },
+      cutout: '60%'
+    }
+  });
+
+  // Line chart: net worth
+  const lineCtx = document.getElementById('chart-line');
+  if (!lineCtx) return;
+  chartLine = destroyChart(chartLine);
+  chartLine = new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels: d.projection.map(p => p.label),
+      datasets: [{
+        label: 'Net Worth',
+        data: d.projection.map(p => p.netWorth),
+        borderColor: '#f0b429',
+        backgroundColor: 'rgba(240,180,41,0.08)',
+        borderWidth: 2.5,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { ticks: { callback: v => fmtK(v) }, grid: { color: gridColor } },
+        x: { grid: { display: false } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  // Bar chart: goals
+  const barCtx = document.getElementById('chart-bar');
+  if (!barCtx || d.goalAnalysis.length === 0) return;
+  chartBar = destroyChart(chartBar);
+  chartBar = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: d.goalAnalysis.map(g => g.name),
+      datasets: [
+        { label: 'Saved', data: d.goalAnalysis.map(g => g.saved), backgroundColor: '#22d3a5', borderRadius: 6 },
+        { label: 'Remaining', data: d.goalAnalysis.map(g => Math.max(0, g.target - g.saved)), backgroundColor: 'rgba(255,94,94,0.5)', borderRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, ticks: { callback: v => fmtK(v) }, grid: { color: gridColor } }
+      },
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
+    }
+  });
+}
+
+/* ============================================================
+   ADVICE ENGINE
+============================================================ */
+function renderAdvice(d) {
+  const el = document.getElementById('advice-cards');
+  const advices = generateAdvice(d);
+  el.innerHTML = advices.map(a => `
+    <div class="advice-item ${a.type}">
+      <div class="advice-icon">${a.icon}</div>
+      <div class="advice-text"><strong>${a.title}</strong><p>${a.body}</p></div>
+    </div>
+  `).join('');
+}
+
+function generateAdvice(d) {
+  const list = [];
+  const { inp, rentPct, monthlySavings, netMonthly, emergencyMet, emergencyTarget } = d;
+
+  if (rentPct > 30) list.push({ type:'danger', icon:'🏠', title:'Rent is Too High', body:`Your rent is ${Math.round(rentPct)}% of take-home pay. The standard recommendation is under 30%. Consider a cheaper place, roommates, or increasing your income.` });
+  else list.push({ type:'good', icon:'🏠', title:'Rent in Good Range', body:`Your rent is ${Math.round(rentPct)}% of income — within the recommended 30% rule. Great discipline!` });
+
+  if (inp.savrate < 0.10) list.push({ type:'danger', icon:'💰', title:'Low Savings Rate', body:`You're saving ${Math.round(inp.savrate*100)}% of income. Try to reach at least 20%. Even an extra $100/month now can grow to tens of thousands later thanks to compound interest.` });
+  else if (inp.savrate >= 0.25) list.push({ type:'good', icon:'💰', title:'Excellent Savings Rate', body:`Saving ${Math.round(inp.savrate*100)}% is impressive. Keep it up — you'll reach goals significantly ahead of schedule.` });
+  else list.push({ type:'info', icon:'💰', title:'Decent Savings Rate', body:`${Math.round(inp.savrate*100)}% is a solid start. Pushing toward 20–25% would dramatically accelerate your wealth-building timeline.` });
+
+  if (inp.subs > 100) list.push({ type:'warn', icon:'📱', title:'High Subscription Spending', body:`You're spending $${inp.subs}/mo on subscriptions. Audit these yearly — many go unused. Cutting even $50/mo saves $600/year.` });
+
+  if (!emergencyMet) list.push({ type:'danger', icon:'🚨', title:'Emergency Fund Needed', body:`You need ${fmtK(emergencyTarget)} (6 months of expenses) in cash savings. You currently have ${fmt(inp.savings)}. Build this before investing aggressively.` });
+  else list.push({ type:'good', icon:'🛡️', title:'Emergency Fund Covered', body:`Your savings exceed your 6-month emergency target. This is your financial safety net — well done!` });
+
+  if (inp.loan > inp.salary * 1.5) list.push({ type:'danger', icon:'🎓', title:'Heavy Debt Load', body:`Your student loan balance is over 1.5× your annual salary. Focus on high-interest debt first. Consider income-based repayment or refinancing options.` });
+  else if (inp.loan > 0) list.push({ type:'warn', icon:'🎓', title:'Student Loan Reminder', body:`You have ${fmt(inp.loan)} in student loans at ${Math.round(inp.loanrate*100)}% interest. Make consistent payments and avoid adding new high-interest debt.` });
+
+  if (inp.risk === 'low') list.push({ type:'info', icon:'🛡️', title:'Low-Risk Strategy', body:`With low risk tolerance, consider FDIC-insured high-yield savings accounts, CDs, and government bond index funds (e.g. BND). Your projected return is ~3%.` });
+  else if (inp.risk === 'medium') list.push({ type:'info', icon:'⚖️', title:'Balanced Strategy', body:`Medium risk is perfect for most investors. Consider a simple 3-fund portfolio: total US market, total international, and bonds. Expected ~6% annual return.` });
+  else list.push({ type:'info', icon:'🚀', title:'High-Risk / High-Reward Strategy', body:`High tolerance opens the door to 100% stock index funds, REITs, or small-cap funds. Be prepared for 30–40% drawdowns in bad years. Stay invested long-term. Expected ~9% return.` });
+
+  if (inp.side === 0) list.push({ type:'warn', icon:'💼', title:'No Side Income', body:`A side income stream — even $200/month — can dramatically speed up goal achievement. Consider freelancing, tutoring, or selling a skill online.` });
+  else list.push({ type:'good', icon:'💼', title:'Great: Side Income Active', body:`Your $${inp.side}/mo side income adds ${fmt(inp.side*12)}/year to your earnings. Consider scaling it over time.` });
+
+  if (d.score < 40) list.push({ type:'danger', icon:'⚡', title:'Take Action Now', body:`Your Life Readiness Score is low. Start with: (1) cut one major expense, (2) build $1,000 starter emergency fund, (3) pay off high-interest debt, (4) automate any savings amount.` });
+
+  return list;
+}
+
+/* ============================================================
+   WHAT-IF SIMULATOR
+============================================================ */
+function syncWhatIfSliders(inp) {
+  document.getElementById('wi-salary').value = inp.salary;
+  document.getElementById('wi-rent').value   = inp.rent;
+  document.getElementById('wi-food').value   = inp.food;
+  document.getElementById('wi-side').value   = inp.side;
+  document.getElementById('wi-sav').value    = Math.round(inp.savrate * 100);
+  document.getElementById('wi-inv').value    = inp.risk === 'low' ? 3 : inp.risk === 'medium' ? 6 : 9;
+}
+
+function updateWhatIf() {
+  const salary = parseFloat(document.getElementById('wi-salary').value);
+  const rent   = parseFloat(document.getElementById('wi-rent').value);
+  const food   = parseFloat(document.getElementById('wi-food').value);
+  const side   = parseFloat(document.getElementById('wi-side').value);
+  const savPct = parseFloat(document.getElementById('wi-sav').value);
+  const invR   = parseFloat(document.getElementById('wi-inv').value) / 100;
+
+  document.getElementById('wi-salary-val').textContent = fmtK(salary);
+  document.getElementById('wi-rent-val').textContent   = fmt(rent);
+  document.getElementById('wi-food-val').textContent   = fmt(food);
+  document.getElementById('wi-side-val').textContent   = fmt(side);
+  document.getElementById('wi-sav-val').textContent    = savPct + '%';
+  document.getElementById('wi-inv-val').textContent    = document.getElementById('wi-inv').value + '%';
+
+  const netM  = (salary / 12) * 0.8 + side;
+  const expM  = rent + food + (simData ? simData.inp.transport + simData.inp.subs + simData.inp.entertain + simData.inp.other : 450);
+  const savM  = netM * (savPct / 100);
+  const savY  = savM * 12;
+  const stability = Math.min(100, Math.max(0, ((netM - expM) / netM) * 100 + savPct));
+
+  // Project 10-year net worth
+  const base = simData ? simData.inp.savings : 0;
+  let nw = base;
+  const nwArr = [nw];
+  for (let y = 1; y <= 10; y++) {
+    nw = (nw + savY) * (1 + invR);
+    nwArr.push(Math.round(nw));
+  }
+
+  const metricsEl = document.getElementById('wi-metrics');
+  metricsEl.innerHTML = [
+    { label: 'Monthly Take-Home', val: fmt(netM) },
+    { label: 'Monthly Expenses', val: fmt(expM) },
+    { label: 'Monthly Savings', val: fmt(savM) },
+    { label: '10-Year Net Worth', val: fmtK(nwArr[10]) },
+    { label: 'Expense Ratio', val: Math.round((expM/netM)*100) + '%' },
+  ].map(m => `<div class="live-metric"><span class="lm-label">${m.label}</span><span class="lm-val">${m.val}</span></div>`).join('');
+
+  document.getElementById('wi-stab-pct').textContent = Math.round(stability) + '/100';
+  document.getElementById('wi-stab-fill').style.width = stability + '%';
+
+  // Update WI chart
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const textColor = isDark ? '#a8b8d8' : '#3a5080';
+  const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
+  Chart.defaults.color = textColor;
+  const wiCtx = document.getElementById('wi-chart');
+  if (!wiCtx) return;
+  chartWI = destroyChart(chartWI);
+  chartWI = new Chart(wiCtx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length:11},(_,i)=>'Yr '+(i)),
+      datasets: [{
+        label: 'What-If Net Worth',
+        data: nwArr,
+        borderColor: '#22d3a5',
+        backgroundColor: 'rgba(34,211,165,0.08)',
+        borderWidth: 2.5,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { ticks: { callback: v => fmtK(v) }, grid: { color: gridColor } },
+        x: { grid: { display: false } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+/* ============================================================
+   ACCORDION CARDS
+============================================================ */
+const investData = [
+  { icon:'🌱', title:'Beginner Investing', body:'Start with a tax-advantaged account like a Roth IRA or 401(k) if your employer matches. You only need $1 to begin. Consistent small contributions beat trying to time the market.' },
+  { icon:'📦', title:'Index Funds', body:'Index funds track the whole market (like the S&P 500). They\'re low-fee, diversified, and outperform most actively managed funds over 10+ years. Recommended for most investors.' },
+  { icon:'🏦', title:'Emergency Fund First', body:'Before investing, keep 3–6 months of expenses in a high-yield savings account. This prevents you from selling investments at a loss during unexpected emergencies.' },
+  { icon:'🔁', title:'Compound Growth', body:'Compound interest means your returns earn returns. $5,000 invested at 7% for 30 years becomes ~$38,000. The earlier you start, the more powerful this effect becomes.' },
+  { icon:'⚖️', title:'Risk vs. Reward', body:'Higher returns come with higher volatility. Stocks are riskier short-term but outperform bonds long-term. As you near a goal, shift to safer assets to protect gains.' },
+  { icon:'🤔', title:'Debt First or Invest?', body:'If your debt interest rate is above 7%, pay it off first. If below 5%, invest while making minimum payments. Between 5–7%, split your strategy between both simultaneously.' },
+  { icon:'🚀', title:'Reach Goals Faster', body:'Three levers: increase income, reduce expenses, and improve investment returns. Even a 5% raise in savings rate can cut years off a goal timeline due to compounding.' },
+];
+
+const lessonData = [
+  { icon:'⏰', title:'Start Early', body:'Time is your most valuable financial asset. Someone who invests $200/mo from age 22 to 32 (10 years) then stops can outperform someone who starts at 32 and never stops — due to compounding.' },
+  { icon:'🧱', title:'Small Habits Matter', body:'Saving $5/day is $1,825/year. Brewing coffee at home, meal prepping, or cutting one subscription — small habits compound into massive results over a decade.' },
+  { icon:'📈', title:'Lifestyle Inflation Slows Progress', body:'Every time income increases, spending tends to increase too. This is lifestyle inflation. Keeping expenses flat as salary grows is one of the fastest wealth-building strategies.' },
+  { icon:'💸', title:'Income ≠ Wealth', body:'High earners go broke too. Wealth is what you keep, not what you make. A teacher who saves 30% of $50K can build more wealth than a doctor who saves 3% of $300K.' },
+  { icon:'🔍', title:'Track Your Spending', body:'Most people underestimate spending by 20–40%. Tracking for even one month is eye-opening. Use a spreadsheet or free budgeting app to find leaks in your budget.' },
+  { icon:'🎓', title:'Build Skills = Build Income', body:'The highest ROI investment is often yourself. A certification, online course, or new skill can increase your salary by $10K–$50K — far more than most investments.' },
+  { icon:'🙈', title:'Stop Comparing', body:'Social media shows the highlights, not the debt. Comparing your Chapter 1 to someone else\'s Chapter 20 leads to lifestyle inflation and poor financial decisions.' },
+  { icon:'🗺️', title:'Plan, But Stay Flexible', body:'Life changes — careers, relationships, cities. Build a plan you review yearly and adjust. A flexible strategy beats a perfect plan you abandon after one unexpected expense.' },
+];
+
+function buildAccordions(data, containerId) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = data.map((item, i) => `
+    <div class="accordion-card" onclick="toggleAccordion(this)">
+      <div class="accordion-header">
+        <div class="accordion-title">${item.icon} ${item.title}</div>
+        <div class="accordion-arrow">▼</div>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-body-inner">${item.body}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleAccordion(card) {
+  card.classList.toggle('open');
+}
+
+buildAccordions(investData, 'invest-accordion');
+buildAccordions(lessonData, 'lessons-accordion');
+
+/* ============================================================
+   REPORT GENERATOR
+============================================================ */
+function generateReport() {
+  const d = simData;
+  if (!d) {
+    alert('Please run the simulator first!');
+    return;
+  }
+  const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  const el = document.getElementById('report-output');
+  const advices = generateAdvice(d);
+
+  el.innerHTML = `
+    <div class="report-header">
+      <div class="report-logo">⬡ Life Path Simulator</div>
+      <div style="font-size:0.82rem;color:var(--text3);margin-top:0.3rem">Generated on ${now} — Educational purposes only, not financial advice.</div>
+    </div>
+
+    <div class="report-section">
+      <h3>👤 Profile Summary</h3>
+      <div class="report-row"><span>Name</span><span>${d.inp.name}</span></div>
+      <div class="report-row"><span>Age</span><span>${d.inp.age} years old</span></div>
+      <div class="report-row"><span>Career Field</span><span>${d.inp.career.charAt(0).toUpperCase()+d.inp.career.slice(1)}</span></div>
+      <div class="report-row"><span>Lifestyle</span><span>${d.inp.lifestyle.charAt(0).toUpperCase()+d.inp.lifestyle.slice(1)}</span></div>
+      <div class="report-row"><span>Risk Tolerance</span><span>${d.inp.risk.charAt(0).toUpperCase()+d.inp.risk.slice(1)}</span></div>
+      <div class="report-row"><span>Life Readiness Score</span><span>${d.score}/100</span></div>
+    </div>
+
+    <div class="report-section">
+      <h3>💰 Income Summary</h3>
+      <div class="report-row"><span>Gross Annual Salary</span><span>${fmt(d.inp.salary)}</span></div>
+      <div class="report-row"><span>Monthly Side Income</span><span>${fmt(d.inp.side)}</span></div>
+      <div class="report-row"><span>Est. Monthly Take-Home (after 20% tax)</span><span>${fmt(d.netMonthly)}</span></div>
+      <div class="report-row"><span>Expected Salary Growth</span><span>${Math.round(d.inp.salgrowth*100)}% per year</span></div>
+    </div>
+
+    <div class="report-section">
+      <h3>💸 Expense Summary</h3>
+      <div class="report-row"><span>Rent</span><span>${fmt(d.inp.rent)}/mo</span></div>
+      <div class="report-row"><span>Food</span><span>${fmt(d.inp.food)}/mo</span></div>
+      <div class="report-row"><span>Transportation</span><span>${fmt(d.inp.transport)}/mo</span></div>
+      <div class="report-row"><span>Subscriptions</span><span>${fmt(d.inp.subs)}/mo</span></div>
+      <div class="report-row"><span>Entertainment</span><span>${fmt(d.inp.entertain)}/mo</span></div>
+      <div class="report-row"><span>Other</span><span>${fmt(d.inp.other)}/mo</span></div>
+      <div class="report-row"><span>Loan Payment (est.)</span><span>${fmt(d.loanMonthly)}/mo</span></div>
+      <div class="report-row" style="border-top:1px solid var(--border);padding-top:0.6rem;margin-top:0.3rem"><span><strong>Total Monthly Out</strong></span><span>${fmt(d.totalMonthlyOut)}/mo</span></div>
+      <div class="report-row"><span>Rent as % of Income</span><span>${Math.round(d.rentPct)}%</span></div>
+    </div>
+
+    <div class="report-section">
+      <h3>📈 Savings Summary</h3>
+      <div class="report-row"><span>Monthly Savings</span><span>${fmt(d.monthlySavings)}</span></div>
+      <div class="report-row"><span>Yearly Savings</span><span>${fmt(d.yearlySavings)}</span></div>
+      <div class="report-row"><span>Current Savings</span><span>${fmt(d.inp.savings)}</span></div>
+      <div class="report-row"><span>Emergency Fund Status</span><span>${d.emergencyMet?'✓ Met':'✗ Needed ('+fmtK(d.emergencyTarget)+')'}</span></div>
+      <div class="report-row"><span>Projected Net Worth (10 yrs)</span><span>${fmtK(d.projection[10].netWorth)}</span></div>
+      <div class="report-row"><span>Projected Net Worth (30 yrs)</span><span>${fmtK(d.projection[30].netWorth)}</span></div>
+    </div>
+
+    <div class="report-section">
+      <h3>🎯 Goal Summary</h3>
+      ${d.goalAnalysis.length === 0
+        ? '<p style="font-size:0.88rem;color:var(--text2)">No goals entered.</p>'
+        : d.goalAnalysis.map(g => `
+            <div class="report-row">
+              <span>${g.name} (${g.priority} priority)</span>
+              <span>${g.needed<=0?'✓ Met':Math.round(g.pct)+'% — '+Math.round(g.yearsNeeded)+' yrs'} ${g.realistic?'✓':'⚠'}</span>
+            </div>`).join('')
+      }
+    </div>
+
+    <div class="report-section">
+      <h3>💬 Personalized Advice</h3>
+      <ul class="report-advice-list">
+        ${advices.map(a => `<li><span>${a.icon}</span><span><strong>${a.title}:</strong> ${a.body}</span></li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="report-section">
+      <h3>⚡ 30-Day Action Plan</h3>
+      <ul class="report-advice-list">
+        <li><span>📋</span><span>Write down all monthly subscriptions and cancel at least one unused service.</span></li>
+        <li><span>🏦</span><span>${d.emergencyMet?'Move some savings into a high-yield savings account to maximize interest.':'Open a high-yield savings account and set up auto-transfer of even $50/month toward emergency fund.'}</span></li>
+        <li><span>📊</span><span>Track every dollar you spend for 30 days using a simple spreadsheet or free app.</span></li>
+        <li><span>💼</span><span>Research one skill you can develop in your career field to increase earning potential.</span></li>
+        <li><span>📚</span><span>Read one personal finance book or article this month (e.g., The Psychology of Money).</span></li>
+      </ul>
+    </div>
+
+    <div class="report-section">
+      <h3>📅 1-Year Action Plan</h3>
+      <ul class="report-advice-list">
+        <li><span>💰</span><span>Reach a savings rate of at least ${Math.max(20, Math.round(d.inp.savrate*100+5))}% by finding one expense to reduce each quarter.</span></li>
+        <li><span>🎓</span><span>${d.inp.loan > 0?'Make at least minimum payments on student loans and set up autopay for a potential interest rate discount.':'Research a Roth IRA and contribute up to the annual limit if possible.'}</span></li>
+        <li><span>🚀</span><span>Start or grow a side income to add ${fmt(Math.max(d.inp.side+200, 200))}/month in extra earnings.</span></li>
+        <li><span>📈</span><span>Open an investment account and begin with even $25/month in a low-cost index fund.</span></li>
+        <li><span>🏆</span><span>Review and re-run this simulator every 3 months as your income or expenses change.</span></li>
+      </ul>
+    </div>
+
+    <div class="report-section">
+      <h3>🌟 Long-Term Recommendation</h3>
+      <ul class="report-advice-list">
+        <li><span>🏠</span><span>At your current trajectory, you could have ${fmtK(d.projection[10].netWorth)} net worth in 10 years and ${fmtK(d.projection[30].netWorth)} in 30 years.</span></li>
+        <li><span>🔑</span><span>The three keys to financial freedom: live below your means, invest the difference consistently, and keep growing your income.</span></li>
+        <li><span>⏰</span><span>Time is your biggest advantage right now. Starting at ${d.inp.age} puts you decades ahead of someone who starts at 35 or 40.</span></li>
+        <li><span>🧠</span><span>Invest in your earning potential — a $10K raise has more long-term impact than almost any investment strategy you can adopt today.</span></li>
+      </ul>
+    </div>
+
+    <div class="disclaimer" style="margin-top:2rem">
+      ⚠️ This report is for <strong>educational purposes only</strong>. It does not constitute professional financial, investment, legal, or tax advice. Consult a licensed financial advisor for personalized guidance. All projections are estimates based on assumed rates and may not reflect actual results.
+    </div>
+  `;
+
+  document.getElementById('report').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ============================================================
+   SHARE / SAVE / LOAD / RESET
+============================================================ */
+function shareReport() {
+  if (!simData) { alert('Run the simulator first!'); return; }
+  const d = simData;
+  const text = `📊 My Life Path Simulation Results\n\nName: ${d.inp.name} | Age: ${d.inp.age}\nSalary: ${fmt(d.inp.salary)} | Savings Rate: ${Math.round(d.inp.savrate*100)}%\nMonthly Savings: ${fmt(d.monthlySavings)}\nLife Readiness Score: ${d.score}/100\n30-Year Net Worth: ${fmtK(d.projection[30].netWorth)}\n\nSimulate yours: lifepathsimulator.com`;
+  navigator.clipboard.writeText(text).then(() => alert('Summary copied to clipboard! Share it anywhere.'));
+}
+
+function saveToStorage() {
+  const data = {
+    name: document.getElementById('f-name').value,
+    age: document.getElementById('f-age').value,
+    savings: document.getElementById('f-savings').value,
+    salary: document.getElementById('f-salary').value,
+    side: document.getElementById('f-side').value,
+    rent: document.getElementById('f-rent').value,
+    food: document.getElementById('f-food').value,
+    transport: document.getElementById('f-transport').value,
+    subs: document.getElementById('f-subs').value,
+    entertain: document.getElementById('f-entertain').value,
+    other: document.getElementById('f-other').value,
+    loan: document.getElementById('f-loan').value,
+    lifestyle: document.getElementById('f-lifestyle').value,
+    career: document.getElementById('f-career').value,
+    city: document.getElementById('f-city').value,
+    risk: document.getElementById('f-risk').value,
+    savrate: document.getElementById('f-savrate').value,
+    inflation: document.getElementById('f-inflation').value,
+    salgrowth: document.getElementById('f-salgrowth').value,
+    loanrate: document.getElementById('f-loanrate').value,
+    goals: getGoals()
+  };
+  localStorage.setItem('lifepath_save', JSON.stringify(data));
+  alert('✅ Data saved to your browser!');
+}
+
+function loadFromStorage() {
+  const raw = localStorage.getItem('lifepath_save');
+  if (!raw) { alert('No saved data found.'); return; }
+  const d = JSON.parse(raw);
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  set('f-name', d.name); set('f-age', d.age); set('f-savings', d.savings);
+  set('f-salary', d.salary); set('f-side', d.side); set('f-rent', d.rent);
+  set('f-food', d.food); set('f-transport', d.transport); set('f-subs', d.subs);
+  set('f-entertain', d.entertain); set('f-other', d.other); set('f-loan', d.loan);
+  set('f-lifestyle', d.lifestyle); set('f-career', d.career); set('f-city', d.city);
+  set('f-risk', d.risk); set('f-savrate', d.savrate); set('f-inflation', d.inflation);
+  set('f-salgrowth', d.salgrowth); set('f-loanrate', d.loanrate);
+  document.getElementById('rv-savrate').textContent = d.savrate + '%';
+  document.getElementById('rv-inflation').textContent = d.inflation + '%';
+  document.getElementById('rv-salgrowth').textContent = d.salgrowth + '%';
+  document.getElementById('rv-loanrate').textContent = d.loanrate + '%';
+  // Reload goals
+  document.getElementById('goals-list').innerHTML = '';
+  goalCount = 0;
+  if (d.goals) d.goals.forEach(g => addGoal(g));
+  alert('✅ Data loaded!');
+}
+
+function resetAll() {
+  if (!confirm('Reset all inputs to defaults?')) return;
+  location.reload();
+}
+
+/* ============================================================
+   INIT: run what-if on load with defaults
+============================================================ */
+updateWhatIf();
+</script>
+</body>
+</html>
